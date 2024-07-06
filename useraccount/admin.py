@@ -1,6 +1,6 @@
 from django.contrib import admin
 from  django.contrib.auth.admin import UserAdmin
-from . models import User
+from . models import User,Clients
 
 @admin.register(User)
 class UserChange(UserAdmin):
@@ -14,3 +14,5 @@ class UserChange(UserAdmin):
             ),
         }),
             )
+
+admin.site.register(Clients)

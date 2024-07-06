@@ -1,9 +1,13 @@
 from django.contrib import admin
-from . models import Restaurant,SyatemSetting,MenuItem,DeliveryAddress,Order,OrderItem,Payment
+from . models import Restaurant,SystemSetting,MenuItem,DeliveryAddress,Order,OrderItem,Payment
 
 admin.site.register(Restaurant)
-admin.site.register(SyatemSetting)
-admin.site.register(MenuItem)
+admin.site.register(SystemSetting)
+
+@admin.register(MenuItem)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = ('name','restaurant','price','available')
+
 admin.site.register(DeliveryAddress)
 admin.site.register(Order)
 admin.site.register(OrderItem)

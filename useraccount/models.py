@@ -8,3 +8,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.first_name
+    
+class Clients(models.Model):
+    name = models.CharField(max_length=150)
+    comment = models.TextField()
+    imange = models.ImageField(upload_to='clients')
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name

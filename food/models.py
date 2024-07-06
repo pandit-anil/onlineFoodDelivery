@@ -2,14 +2,17 @@ from django.db import models
 from useraccount.models import User
 from auditlog.registry import auditlog
 
-class SyatemSetting(models.Model):
+
+    
+class SystemSetting(models.Model):
     name = models.CharField(max_length=150)
     address = models.CharField(max_length=250)
     slogan = models.CharField(max_length=300)
+    about = models.TextField(blank=True,null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=15) 
     logo = models.ImageField(upload_to='sys')
-    facebook = models.URLField(blank=True,null=True)
+    location = models.URLField(blank=True,null=True)
     youtube = models.URLField(blank=True,null=True)
     instagram = models.URLField(blank=True,null=True)
 
@@ -21,6 +24,7 @@ class Restaurant(models.Model):
     address = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=15)
     restimg = models.ImageField(upload_to='resto',blank=True,null=True)
+    map = models.URLField(null=True,blank=True)
     email = models.EmailField()
     opening_time = models.TimeField()
     closing_time = models.TimeField()
@@ -31,7 +35,6 @@ class Restaurant(models.Model):
 class MenuItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_items')
     name = models.CharField(max_length=100)
-    image1 = models.ImageField(upload_to='')
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
@@ -39,6 +42,7 @@ class MenuItem(models.Model):
     image1 = models.ImageField(upload_to='menu_images/', null=True, blank=True)
     image2 = models.ImageField(upload_to='menu_images/', null=True, blank=True)
     image3 = models.ImageField(upload_to='menu_images/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -56,7 +60,6 @@ class DeliveryAddress(models.Model):
 
 class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='orders')
     order_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')])
 
@@ -84,9 +87,37 @@ class Payment(models.Model):
     def __str__(self):
         return self.user.first_name
 
+class BookTable(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='reservations')
+    reservation_date = models.DateField()
+    reservation_time = models.TimeField()
+    number_of_guests = models.PositiveIntegerField()
+    special_requests = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('restaurant', 'reservation_date', 'reservation_time', 'number_of_guests')
+
+    def __str__(self):
+        return f"Reservation by {self.customer} at {self.restaurant} on {self.reservation_date} at {self.reservation_time}"
+
+
+class ContactUs(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contactuss')
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    message = models.TextField()
+
+    def __str__(self):
+        return self.customer.first_name
+
+
+
+
+
 
 auditlog.register(Restaurant)
 auditlog.register(MenuItem)
-auditlog.register(SyatemSetting)
+auditlog.register(SystemSetting)
 auditlog.register(Order)
 auditlog.register(OrderItem)

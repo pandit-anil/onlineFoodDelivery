@@ -1,0 +1,37 @@
+{% extends "master.html" %}
+{% block content %}
+{% include "header2.html" %}
+
+<section class="about_section layout_padding">
+    <div class="container  ">
+
+      <div class="row">
+        <div class="col-md-6 ">
+          <div class="img-box">
+            <img src="{{user.profile.url}}" height="600px" width="100px">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-box">
+            <div class="heading_container">
+              <h2>
+                Information
+              </h2>
+            </div>
+            
+               <p> Name : {{user.first_name}} {{user.last_name}}</p>
+               <p> Email : {{user.email}}</p>
+               <p> Mobile: {{user.mobile}}</p>
+               <p> Address: {{user.address}}</p>
+
+            
+            <a href="{% url 'updatep' %}">
+              Edit Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock content %}

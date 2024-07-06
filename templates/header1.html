@@ -8,9 +8,9 @@
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
+          <a class="navbar-brand" href="{% url 'home'%}">
             <span>
-              Feane
+              {{sys.name}}
             </span>
           </a>
 
@@ -34,10 +34,32 @@
               </li>
             </ul>
             <div class="user_option">
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </a>
-              <a class="cart_link" href="#">
+              <div class="user-menu">
+                <a href="#" class="user_link">
+                  {% if user.is_authenticated %}
+                  {% if user.profile and user.profile.url %}
+                      <img src="{{ user.profile.url }}" height="30px" width="30px" class="rounded-circle" height="100" width="100">
+                  {% else %}
+                      <i class="fa fa-user" aria-hidden="true"></i>
+                  {% endif %}
+                  {% else %}
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  
+              {% endif %}
+                </a>
+                <div class="dropdown-content">
+                 
+                  {% if user.is_authenticated %}
+                  <a href="{% url 'Profile' %}">Profile</a>
+                  <a href="{% url 'logout' %}">Logout</a>
+                  {% else %}
+                  <a href="{% url 'login' %}">Login</a>
+                  <a href="{% url 'register' %}">Register</a>
+                  {% endif %}
+                </div>
+              </div>
+              {% if user.is_authenticated %}
+              <a class="cart_link" href="{% url 'order' %}">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                   <g>
                     <g>
@@ -91,37 +113,43 @@
                   </g>
                 </svg>
               </a>
-              <form class="form-inline">
+              {% endif %}
+              <form class="form-inline" method="GET" action="{% url 'home' %}">
+                <input type="text" class="form-control form-control-sm" name="search" value="{{ search }}" placeholder="Search...">
                 <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
+                  
                 </button>
               </form>
-              <a href="" class="order_online">
+              {% comment %} <a href="" class="order_online">
                 Order Online
-              </a>
+              </a> {% endcomment %}
             </div>
           </div>
         </nav>
       </div>
     </header>
     <!-- end header section -->
+
+    
+
     <!-- slider section -->
     <section class="slider_section ">
       <div id="customCarousel1" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
-          <div class="carousel-item active">
+          {% for cd in carousel  %}
+          <div class="carousel-item {% if forloop.first %} active {% endif %}">
             <div class="container ">
               <div class="row">
                 <div class="col-md-7 col-lg-6 ">
                   <div class="detail-box">
                     <h1>
-                      Fast Food Restaurant
+                      {{cd.name}}
                     </h1>
                     <p>
-                      Doloremque, itaque aperiam facilis rerum, commodi, temporibus sapiente ad mollitia laborum quam quisquam esse error unde. Tempora ex doloremque, labore, sunt repellat dolore, iste magni quos nihil ducimus libero ipsam.
+                      {{cd.description | safe | truncatechars:150}}
                     </p>
                     <div class="btn-box">
-                      <a href="" class="btn1">
+                      <a href="{% url 'details' cd.id %}" class="btn1" target="_blank">
                         Order Now
                       </a>
                     </div>
@@ -130,48 +158,8 @@
               </div>
             </div>
           </div>
-          <div class="carousel-item ">
-            <div class="container ">
-              <div class="row">
-                <div class="col-md-7 col-lg-6 ">
-                  <div class="detail-box">
-                    <h1>
-                      Fast Food Restaurant
-                    </h1>
-                    <p>
-                      Doloremque, itaque aperiam facilis rerum, commodi, temporibus sapiente ad mollitia laborum quam quisquam esse error unde. Tempora ex doloremque, labore, sunt repellat dolore, iste magni quos nihil ducimus libero ipsam.
-                    </p>
-                    <div class="btn-box">
-                      <a href="" class="btn1">
-                        Order Now
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="container ">
-              <div class="row">
-                <div class="col-md-7 col-lg-6 ">
-                  <div class="detail-box">
-                    <h1>
-                      Fast Food Restaurant
-                    </h1>
-                    <p>
-                      Doloremque, itaque aperiam facilis rerum, commodi, temporibus sapiente ad mollitia laborum quam quisquam esse error unde. Tempora ex doloremque, labore, sunt repellat dolore, iste magni quos nihil ducimus libero ipsam.
-                    </p>
-                    <div class="btn-box">
-                      <a href="" class="btn1">
-                        Order Now
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+         
+          {% endfor %}
         </div>
         <div class="container">
           <ol class="carousel-indicators">
@@ -181,6 +169,7 @@
           </ol>
         </div>
       </div>
+      
 
     </section>
     <!-- end slider section -->
