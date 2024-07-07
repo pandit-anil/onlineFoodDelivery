@@ -149,7 +149,23 @@
   <!-- Google Map -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
   </script>
-  <!-- End Google Map -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Wait for 20 seconds (20000 milliseconds)
+        setTimeout(function() {
+            // Select the message container and remove it
+            var messageContainer = document.getElementById("message-container");
+            if (messageContainer) {
+                messageContainer.style.transition = "opacity 1s ease";
+                messageContainer.style.opacity = 0; // Fade out effect
+                setTimeout(function() {
+                    messageContainer.remove(); // Remove the element from the DOM
+                }, 1000); // Wait for the fade out transition to complete
+            }
+        }, 20000); // 20000 milliseconds = 20 seconds
+    });
+    </script>
+    
 
 </body>
 

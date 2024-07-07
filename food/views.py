@@ -1,10 +1,10 @@
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.views.generic import TemplateView
-from .models import MenuItem,Restaurant,Order,OrderItem,Table,BookTable
+from .models import MenuItem,Restaurant,Order,OrderItem,Table,BookTable,DeliveryAddress
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from django.core.mail import send_mail
+from django.contrib import messages
 from django.conf import settings
 from useraccount.models import Clients  
 
@@ -70,6 +70,7 @@ def SelectRestaurant(request):
     restaurant = Restaurant.objects.all()
     return render(request, 'booktable/hotelList.html', {'hotels': restaurant})
 
+@login_required(login_url='login')
 def SelectTable(request, hotel_id):
     restaurant = get_object_or_404(Restaurant,id=hotel_id)
     tables = Table.objects.filter(restaurant=restaurant,is_available=True)
@@ -87,30 +88,14 @@ def SelectTable(request, hotel_id):
             
             tdata=BookTable.objects.create(table=tables,customer=request.user,reservation_date=reservation_date,reservation_time=reservation_time,special_requests = special_requests)
             tdata.save()
-            return render(request, 'booktable/hotelList.html', {'tables': tables})
+            messages.success(request, 'Your table has been booked !')
+            return redirect('restaurant')
         else:
             return render(request, 'booktable/book.html')
   
     return render(request, 'booktable/select_table.html', {'tables': tables})
 
-def Booktable(request,table_id):
-    table = Table.objects.get(id=table_id)
 
-    if request.method =="POST":
-        data = request.POST
-        reservation_date = data.get('booking_date')
-        reservation_time = data.get('booking_time')
-        special_requests = data.get('special_requests')
-
-        if table.is_available:
-            table.is_available = False
-            table.save()
-           
-            tdata=BookTable.objects.create(table=table,customer=request.user,reservation_date=reservation_date,reservation_time=reservation_time,special_requests = special_requests)
-            tdata.save()
-        else:
-            return render(request, 'booktable/book.html')
-    return render(request,'booktable/book.html')
 @login_required(login_url='login')
 def AddOrder(request,order_id):
     menu_item = get_object_or_404(MenuItem,id = order_id)
@@ -131,7 +116,18 @@ def OrderView(request):
     for item in order_item:
         item.total_price = item.price * item.quantity
     total_price = sum(item.price * item.quantity for item in order_item)
-    return render(request, 'order_list.html', {'order': order, 'order_items': order_item,'total_price':total_price})
+    return render(request, 'order_view.html', {'order': order, 'order_items': order_item,'total_price':total_price})
+
+
+def BillView(request):
+    order = get_object_or_404(Order, customer=request.user)
+    address = DeliveryAddress.objects.get(customer = request.user)
+    order_items = OrderItem.objects.filter(order=order)  
+    for item in order_items:
+        item.total_price = item.price * item.quantity  
+    total_price = sum(item.price * item.quantity for item in order_items) 
+    return render(request, 'bill.html', {'order': order, 'order_items': order_items,'address':address,  'total_price': total_price})
+
 
 @login_required
 def remove_Order(request, order_id):
@@ -144,13 +140,15 @@ def proceed_to_payment(request):
     if request.method == 'POST':
         order = get_object_or_404(Order, customer=request.user)
         order_items = OrderItem.objects.filter(order=order)
+        address = request.POST.get('adr')
         total_price = sum(item.price * item.quantity for item in order_items)
 
         email_subject = 'Order Confirmation'
         email_body = render_to_string('order_email.html', {
             'order': order,
             'order_items': order_items,
-            'total_price': total_price
+            'total_price': total_price,
+            'address':address,
         })
         
        
@@ -169,7 +167,8 @@ def proceed_to_payment(request):
             order.status = 'Paid'  
             order.save()
             OrderItem.objects.filter(order=order).delete()
-            return HttpResponse("Payment successful! Your order has been processed.")
+            messages.success(request, "Payment successful! Your order has been processed.")
+            return redirect('order')
         else:
             return redirect('order')
         

@@ -15,6 +15,7 @@ urlpatterns = [
     path('payment',views.proceed_to_payment, name="payment"),
     path('restaurant',views.SelectRestaurant , name="restaurant"),
     path('selecttable/<int:hotel_id>',views.SelectTable,name="selecttable"),
-    path('bootTable/<int:table_id>',views.BookTable,name="booktable"),
+    path('billview',views.BillView,name="billview"),
+
 
 ]
