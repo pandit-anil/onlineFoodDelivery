@@ -1,12 +1,13 @@
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.views.generic import TemplateView
-from .models import MenuItem,Restaurant,Order,OrderItem
+from .models import MenuItem,Restaurant,Order,OrderItem,Table,BookTable
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.conf import settings
 from useraccount.models import Clients  
+
 from django.db.models import Q
 from django.core.paginator import Paginator
 
@@ -33,9 +34,9 @@ def Index(request):
     menu = {}
     for rest in resturent:
         if search:
-            Menu = MenuItem.objects.filter(restaurant=rest).filter(Q(name__icontains=search) | Q(description__icontains=search)).order_by('created_at')[:10]
+            Menu = MenuItem.objects.filter(restaurant=rest).filter(Q(name__icontains=search) | Q(description__icontains=search))[:10]
         else:
-            Menu = MenuItem.objects.filter(restaurant=rest).order_by('created_at')[:10]
+            Menu = MenuItem.objects.filter(restaurant=rest)[:10]
         menu[rest.id] = Menu[:4]
 
     context = {
@@ -54,9 +55,9 @@ def MenuItems(request):
     menu = {}
     for rest in resturent:
         if search:
-            Menu = MenuItem.objects.filter(restaurant=rest).filter(Q(name__icontains=search) | Q(description__icontains=search))[:10]
+            Menu = MenuItem.objects.filter(restaurant=rest).filter(Q(name__icontains=search) | Q(description__icontains=search)).order_by('-created_at')[:10]
         else:
-            Menu = MenuItem.objects.filter(restaurant=rest)[:10]
+            Menu = MenuItem.objects.filter(restaurant=rest).order_by('-created_at')[:10]
         menu[rest.id] = Menu[:10]
     return render(request,'menu.html',{'data':resturent,'menu':menu})
 
@@ -65,8 +66,51 @@ def Detail(request,id):
     food = get_object_or_404(MenuItem, id=id)
     return render(request,'details.html',{'food':food})
 
+def SelectRestaurant(request):
+    restaurant = Restaurant.objects.all()
+    return render(request, 'booktable/hotelList.html', {'hotels': restaurant})
 
+def SelectTable(request, hotel_id):
+    restaurant = get_object_or_404(Restaurant,id=hotel_id)
+    tables = Table.objects.filter(restaurant=restaurant,is_available=True)
 
+    if request.method =="POST":
+        data = request.POST
+        table = data.get('table')
+        reservation_date = data.get('booking_date')
+        reservation_time = data.get('booking_time')
+        special_requests = data.get('special_requests')
+        tables = Table.objects.get(id = table)
+        if tables.is_available:
+            tables.is_available = False
+            tables.save()
+            
+            tdata=BookTable.objects.create(table=tables,customer=request.user,reservation_date=reservation_date,reservation_time=reservation_time,special_requests = special_requests)
+            tdata.save()
+            return render(request, 'booktable/hotelList.html', {'tables': tables})
+        else:
+            return render(request, 'booktable/book.html')
+  
+    return render(request, 'booktable/select_table.html', {'tables': tables})
+
+def Booktable(request,table_id):
+    table = Table.objects.get(id=table_id)
+
+    if request.method =="POST":
+        data = request.POST
+        reservation_date = data.get('booking_date')
+        reservation_time = data.get('booking_time')
+        special_requests = data.get('special_requests')
+
+        if table.is_available:
+            table.is_available = False
+            table.save()
+           
+            tdata=BookTable.objects.create(table=table,customer=request.user,reservation_date=reservation_date,reservation_time=reservation_time,special_requests = special_requests)
+            tdata.save()
+        else:
+            return render(request, 'booktable/book.html')
+    return render(request,'booktable/book.html')
 @login_required(login_url='login')
 def AddOrder(request,order_id):
     menu_item = get_object_or_404(MenuItem,id = order_id)

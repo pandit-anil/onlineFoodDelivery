@@ -21,6 +21,7 @@ class SystemSetting(models.Model):
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=100)
+    foodname = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=15)
     restimg = models.ImageField(upload_to='resto',blank=True,null=True)
@@ -31,6 +32,7 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class MenuItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_items')
@@ -87,19 +89,28 @@ class Payment(models.Model):
     def __str__(self):
         return self.user.first_name
 
-class BookTable(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='reservations')
-    reservation_date = models.DateField()
-    reservation_time = models.TimeField()
-    number_of_guests = models.PositiveIntegerField()
-    special_requests = models.TextField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ('restaurant', 'reservation_date', 'reservation_time', 'number_of_guests')
+class Table(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    table_number = models.IntegerField()
+    seats = models.IntegerField()
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Reservation by {self.customer} at {self.restaurant} on {self.reservation_date} at {self.reservation_time}"
+        return f"Table {self.table_number} - Seats: {self.seats} in {self.restaurant.name}"
+
+
+class BookTable(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='reservations')
+    reservation_date = models.DateField()
+    reservation_time = models.TimeField()
+    number_of_guests = models.PositiveIntegerField(blank=True, null=True)
+    special_requests = models.TextField(blank=True, null=True)
+
+    
+    def __str__(self):
+        return f"{self.customer.first_name} - Table {self.table.table_number} in {self.table.restaurant.name} on {self.reservation_time} at {self.reservation_time}"
+    
 
 
 class ContactUs(models.Model):
