@@ -118,7 +118,7 @@ def OrderView(request):
     total_price = sum(item.price * item.quantity for item in order_item)
     return render(request, 'order_view.html', {'order': order, 'order_items': order_item,'total_price':total_price})
 
-
+@login_required(login_url='login')
 def BillView(request):
     order = get_object_or_404(Order, customer=request.user)
     address = DeliveryAddress.objects.get(customer = request.user)
@@ -129,11 +129,29 @@ def BillView(request):
     return render(request, 'bill.html', {'order': order, 'order_items': order_items,'address':address,  'total_price': total_price})
 
 
-@login_required
+@login_required(login_url='login')
 def remove_Order(request, order_id):
     cart_item = get_object_or_404(OrderItem, id=order_id)
     cart_item.delete()
     return redirect('order')
+
+@login_required(login_url='login')
+def increase_quantity(request, order_id):
+    cart_item = get_object_or_404(OrderItem, id=order_id)
+    cart_item.quantity += 1
+    cart_item.save()
+    return redirect('order')
+
+@login_required(login_url='login')
+def decrease_quantity(request, order_id):
+    cart_item = get_object_or_404(OrderItem, id=order_id)
+    if cart_item.quantity > 1:
+        cart_item.quantity -= 1
+        cart_item.save()
+    else:
+        cart_item.delete()
+    return redirect('order')
+
 
 @login_required(login_url='login')
 def proceed_to_payment(request):

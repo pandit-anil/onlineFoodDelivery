@@ -38,7 +38,8 @@
                     {% for item in order_items %}
                         <tr>
                             <td>{{ item.menu_item.name }}</td>
-                            <td>{{ item.quantity }}</td>
+
+                            <td><a href="{% url 'increaseOrder' item.id %}"><button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">+</button></a>  {{ item.quantity }}  <a href="{%url 'decrease' item.id %}"><button type="submit" name="action" value="decrease" class="btn btn-outline-secondary" >-</button></td>
                             <td>${{ item.menu_item.price }}</td>
                             <td>${{ item.total_price |floatformat:2 }}</td>
                             <td><a href="{% url 'remove' item.id %}"><button class="btn btn-danger"> Remove</button></td>
