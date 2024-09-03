@@ -30,8 +30,10 @@
                         <th>Item</th>
                         <th>Quantity</th>
                         <th>Price</th>
+                        
                         <th>Total</th>
                         <th>Action</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -40,8 +42,16 @@
                             <td>{{ item.menu_item.name }}</td>
 
                             <td><a href="{% url 'increaseOrder' item.id %}"><button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">+</button></a>  {{ item.quantity }}  <a href="{%url 'decrease' item.id %}"><button type="submit" name="action" value="decrease" class="btn btn-outline-secondary" >-</button></td>
+                            
+                            {% if item.discounted_price %}
+                            <td>${{item.discounted_price}} </td>
+                            <td>${{ item.total_price |floatformat:2 }}</td>
+
+                            {% else %}
                             <td>${{ item.menu_item.price }}</td>
                             <td>${{ item.total_price |floatformat:2 }}</td>
+                            {% endif %}
+                            
                             <td><a href="{% url 'remove' item.id %}"><button class="btn btn-danger"> Remove</button></td>
                         </tr>
                     {% empty %}

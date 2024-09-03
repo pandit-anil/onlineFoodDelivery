@@ -9,6 +9,7 @@ urlpatterns = [
     path('about/',About.as_view(), name='about'),
     path('menu/',views.MenuItems,name='menu'),
     path('details/<int:id>',views.Detail, name="details"),
+    path('offer-detail/<int:id>', views.OfferView,name= "offerview"),
     path('add-to-order/<int:order_id>/', views.AddOrder, name='add_to_order'),
     path('order',views.OrderView,name='order'),
     path('remove/<int:order_id>',views.remove_Order,name="remove"),

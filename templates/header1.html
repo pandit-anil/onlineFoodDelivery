@@ -37,11 +37,11 @@
               <div class="user-menu">
                 <a href="#" class="user_link">
                   {% if user.is_authenticated %}
-                  {% if user.profile and user.profile.url %}
-                      <img src="{{ user.profile.url }}" height="30px" width="30px" class="rounded-circle" height="100" width="100">
-                  {% else %}
-                      <i class="fa fa-user" aria-hidden="true"></i>
-                  {% endif %}
+                    {% if user.profile and user.profile.url %}
+                        <img src="{{ user.profile.url }}" height="30px" width="30px" class="rounded-circle" height="100" width="100">
+                    {% else %}
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    {% endif %}
                   {% else %}
                   <i class="fa fa-user" aria-hidden="true"></i>
                   

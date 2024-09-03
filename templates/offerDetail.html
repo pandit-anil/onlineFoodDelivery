@@ -9,30 +9,32 @@
         <div class="col-md-6 ">
           <div class="img-box">
             
-            <img src="{{food.image1.url}}" alt="">
+            <img src="{{offers.food.image1.url}}" alt="">
           </div>
         </div>
         <div class="col-md-6">
           <div class="detail-box">
             <div class="heading_container">
               <h3>
-                Name : {{food.name}}
+                Name : {{offers.food.name}}
               </h3>
-              <h3>
-                Price : {{food.price}}
-              </h3>
+              <h5>
+                Price :<span style="color: red;"><s>  {{offers.food.price}} </s></span>
+              </h5>
+              <h5> Discount: {{offers.discount}}%</h5>
+              <h5> Now: {{offers.discounted_price}}</h5>
             </div>
             <h5>
               <br>
               Description:
             </h5>
             <p>
-              {{food.description}}
+              {{offers.food.description}}
             </p>
             
           </div>
           <div>
-            <a href="{% url 'add_to_order' food.id %}"><button class="btn btn-primary"> Add to cart </button></a>
+            <a href="{% url 'add_to_order' offers.food.id %}"><button class="btn btn-primary"> Add to cart </button></a>
           </div>
         </div>
       </div>

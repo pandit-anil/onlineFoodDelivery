@@ -13,8 +13,17 @@ import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
+
+DATABASES = {
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://postgres:postgres@localhost:5432/mysite',
+        conn_max_age=600
+    )
+}
 
 
 MESSAGE_TAGS = {
@@ -34,7 +43,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*","https://f3a5-49-244-183-133.ngrok-free.app/"]
 
 
 # Application definition
@@ -53,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'food.context_processors.System',
+                'food.context_processors.OfferView',
             ],
         },
     },
@@ -87,7 +98,18 @@ WSGI_APPLICATION = 'onlineFoodDelivery.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+database_url = os.environ.get('DATABASE_URL', '')
+
 DATABASES = {
+    'default': dj_database_url.config(
+
+        default=database_url,
+        conn_max_age=600
+    )
+}
+
+
+# DATABASES = {
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -100,11 +122,15 @@ DATABASES = {
 
 
 
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+#     'default' = dj_database_url.config(
+#         default=database_url,
+#         conn_max_age=600,
+#     )
+# }
 
 
 # Password validation
@@ -144,6 +170,15 @@ USE_TZ = True
 import os
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static/')]
+
+
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
